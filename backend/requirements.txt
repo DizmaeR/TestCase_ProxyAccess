@@ -12,3 +12,6 @@ redis
 fastapi-mail
 alembic
 python-dotenv
+ruff
+mypy
+pre-commit
