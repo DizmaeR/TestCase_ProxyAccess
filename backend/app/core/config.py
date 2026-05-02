@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     APP_MODE: str
     APP_PORT: int
@@ -27,4 +28,5 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
-settings = Settings()
+
+settings = Settings()  # type: ignore[call-arg]
