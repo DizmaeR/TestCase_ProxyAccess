@@ -5,6 +5,7 @@ from app.models.user import User
 from app.repositories.user import UserRepository
 from app.repositories.virtual_machine import VirtualMachineRepository
 from app.schemas.virtual_machine import VirtualMachineResponse
+from app.websocket.manager import manager
 
 
 class ProxyService:
@@ -19,8 +20,11 @@ class ProxyService:
         await self.user_repo.activate(user)
         vm = await self.vm_repo.get_free()
         if not vm:
+            await manager.send_status(user.id, "no_free_vms")
             raise HTTPException(status_code=503, detail="Все прокси заняты")
         await self.vm_repo.assign_user(vm, user.id)
+        await manager.send_status(user.id, "connected")
+
         return VirtualMachineResponse.model_validate(vm)
 
     async def disconnect(self, user: User) -> dict:
@@ -28,4 +32,5 @@ class ProxyService:
         if not vm:
             raise HTTPException(status_code=400, detail="Нет активного подключения")
         await self.vm_repo.release(vm)
+        await manager.send_status(user.id, "disconnected")
         return {"message": "Отключено"}

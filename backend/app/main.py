@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router
+from app.websocket.router import router as ws_router
 
 app = FastAPI(
     title="Proxy Access API",
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(router)
+app.include_router(ws_router)
 
 
 @app.get("/health")
