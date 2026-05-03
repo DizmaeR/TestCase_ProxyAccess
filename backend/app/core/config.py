@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     MAIL_PORT: int
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
 
 
 settings = Settings()  # type: ignore[call-arg]
