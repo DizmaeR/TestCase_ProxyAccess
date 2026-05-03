@@ -23,8 +23,7 @@ class AuthService:
 
         hashed = hash_password(user_data.password)
         activation_key = generate_activation_key()
-        user_data.password = hashed
-        await self.user_repository.create(user_data, activation_key)
+        await self.user_repository.create(user_data, hashed, activation_key)
 
         return {"message": "Письмо с ключом отправлено на почту"}
 
