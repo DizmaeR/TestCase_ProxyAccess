@@ -11,6 +11,7 @@ from app.models.user import User
 from app.repositories.user import UserRepository
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.schemas.user import UserCreate, UserUpdate
+from app.tasks.email import send_activation_email
 
 
 class AuthService:
@@ -25,7 +26,7 @@ class AuthService:
         hashed = hash_password(user_data.password)
         activation_key = generate_activation_key()
         await self.user_repository.create(user_data, hashed, activation_key)
-
+        send_activation_email.delay(user_data.email, activation_key)
         return {"message": "Письмо с ключом отправлено на почту"}
 
     async def login(self, login_data: LoginRequest) -> TokenResponse:
