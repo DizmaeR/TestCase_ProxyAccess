@@ -29,7 +29,9 @@ class UserRepository:
         await self.session.refresh(user)
         return user
 
-    async def update_activation_key(self, user: User, activation_key: str) -> User:
+    async def update_activation_key(
+        self, user: User, activation_key: str | None
+    ) -> User:
         user.activation_key = activation_key
         await self.session.commit()
         await self.session.refresh(user)
@@ -37,7 +39,6 @@ class UserRepository:
 
     async def activate(self, user: User) -> User:
         user.is_active = True
-        user.activation_key = None
         await self.session.commit()
         await self.session.refresh(user)
         return user

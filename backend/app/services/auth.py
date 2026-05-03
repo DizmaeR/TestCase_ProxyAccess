@@ -22,10 +22,10 @@ class AuthService:
         existing_user = await self.user_repository.get_by_email(user_data.email)
         if existing_user:
             raise HTTPException(status_code=400, detail="Email уже занят")
-
         hashed = hash_password(user_data.password)
         activation_key = generate_activation_key()
-        await self.user_repository.create(user_data, hashed, activation_key)
+        user = await self.user_repository.create(user_data, hashed, activation_key)
+        await self.user_repository.activate(user)
         send_activation_email.delay(user_data.email, activation_key)
         return {"message": "Письмо с ключом отправлено на почту"}
 
@@ -33,13 +33,8 @@ class AuthService:
         user = await self.user_repository.get_by_email(login_data.email)
         if not user:
             raise HTTPException(status_code=401, detail="Неверный email или пароль")
-
         if not verify_password(login_data.password, user.password):
             raise HTTPException(status_code=401, detail="Неверный email или пароль")
-
-        if not user.is_active:
-            raise HTTPException(status_code=403, detail="Аккаунт не активирован")
-
         token = create_access_token(user.id)
         return TokenResponse(access_token=token)
 

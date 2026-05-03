@@ -17,14 +17,13 @@ class ProxyService:
         user = await self.user_repo.get_by_activation_key(key)
         if not user:
             raise HTTPException(status_code=400, detail="Неверный ключ")
-        await self.user_repo.activate(user)
+        await self.user_repo.update_activation_key(user, None)  # обнуляем ключ
         vm = await self.vm_repo.get_free()
         if not vm:
             await manager.send_status(user.id, "no_free_vms")
             raise HTTPException(status_code=503, detail="Все прокси заняты")
         await self.vm_repo.assign_user(vm, user.id)
         await manager.send_status(user.id, "connected")
-
         return VirtualMachineResponse.model_validate(vm)
 
     async def disconnect(self, user: User) -> dict:
