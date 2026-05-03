@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.connection import Base
 
@@ -19,5 +19,3 @@ class VirtualMachine(Base):
         ForeignKey("users.id", ondelete="SET NULL")
     )
     last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-
-    current_user = relationship("User", back_populates="virtual_machine")
