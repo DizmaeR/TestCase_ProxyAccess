@@ -16,6 +16,12 @@ class VirtualMachineRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_user_id(self, user_id: int) -> VirtualMachine | None:
+        result = await self.session.execute(
+            select(VirtualMachine).where(VirtualMachine.current_user_id == user_id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_free(self) -> VirtualMachine | None:
         result = await self.session.execute(
             select(VirtualMachine).where(
