@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import UserCreate
 
 
 class UserRepository:
@@ -23,8 +23,8 @@ class UserRepository:
         await self.session.refresh(new_user)
         return new_user
 
-    async def update(self, user: User, data: UserUpdate) -> User:
-        user.password = data.new_password
+    async def update(self, user: User, hashed_password: str) -> User:
+        user.password = hashed_password
         await self.session.commit()
         await self.session.refresh(user)
         return user

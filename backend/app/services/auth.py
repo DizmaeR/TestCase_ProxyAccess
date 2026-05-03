@@ -7,9 +7,10 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.models.user import User
 from app.repositories.user import UserRepository
 from app.schemas.auth import LoginRequest, TokenResponse
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 
 
 class AuthService:
@@ -40,3 +41,16 @@ class AuthService:
 
         token = create_access_token(user.id)
         return TokenResponse(access_token=token)
+
+    async def change_password(self, user: User, data: UserUpdate) -> dict:
+        if not verify_password(data.old_password, user.password):
+            raise HTTPException(status_code=400, detail="Неверный старый пароль")
+
+        hashed = hash_password(data.new_password)
+        await self.user_repository.update(user, hashed)
+        return {"message": "Пароль успешно изменён"}
+
+    async def refresh_activation_key(self, user: User) -> dict:
+        activation_key = generate_activation_key()
+        await self.user_repository.update_activation_key(user, activation_key)
+        return {"message": "Новый ключ отправлен на почту"}
