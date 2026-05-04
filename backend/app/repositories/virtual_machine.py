@@ -20,7 +20,13 @@ class VirtualMachineRepository:
         result = await self.session.execute(
             select(VirtualMachine).where(VirtualMachine.current_user_id == user_id)
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
+
+    async def get_all_by_user_id(self, user_id: int) -> list[VirtualMachine]:
+        result = await self.session.execute(
+            select(VirtualMachine).where(VirtualMachine.current_user_id == user_id)
+        )
+        return list(result.scalars().all())
 
     async def get_free(self) -> VirtualMachine | None:
         result = await self.session.execute(

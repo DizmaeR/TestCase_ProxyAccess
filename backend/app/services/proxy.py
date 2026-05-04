@@ -18,6 +18,9 @@ class ProxyService:
         if not user:
             raise HTTPException(status_code=400, detail="Неверный ключ")
         await self.user_repo.update_activation_key(user, None)  # обнуляем ключ
+        # Освобождаем старые VM пользователя (если приложение закрыли без disconnect)
+        for old_vm in await self.vm_repo.get_all_by_user_id(user.id):
+            await self.vm_repo.release(old_vm)
         vm = await self.vm_repo.get_free()
         if not vm:
             await manager.send_status(user.id, "no_free_vms")
@@ -27,9 +30,10 @@ class ProxyService:
         return VirtualMachineResponse.model_validate(vm)
 
     async def disconnect(self, user: User) -> dict:
-        vm = await self.vm_repo.get_by_user_id(user.id)
-        if not vm:
+        vms = await self.vm_repo.get_all_by_user_id(user.id)
+        if not vms:
             raise HTTPException(status_code=400, detail="Нет активного подключения")
-        await self.vm_repo.release(vm)
+        for vm in vms:
+            await self.vm_repo.release(vm)
         await manager.send_status(user.id, "disconnected")
         return {"message": "Отключено"}
