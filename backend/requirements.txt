@@ -16,3 +16,7 @@ python-dotenv
 ruff
 mypy
 pre-commit
+pytest
+pytest-asyncio
+httpx
+aiosqlite
