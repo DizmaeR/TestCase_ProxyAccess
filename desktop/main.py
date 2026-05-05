@@ -529,6 +529,10 @@ class MainWindow(QMainWindow):
     def _on_connect_ok(self, data: dict) -> None:
         self._vm_id = data["id"]
         self._set_vm_info(data["host"], data["port"], data["protocol"])
+        self._set_status("connected")
+        self.inp_key.clear()
+        if self._user_id:
+            self._start_ws(self._user_id)
 
     def _on_connect_err(self, msg: str) -> None:
         self.lbl_proxy_error.setText(f"Ошибка: {msg}")
